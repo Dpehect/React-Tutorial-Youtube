@@ -1,46 +1,38 @@
-import React, { useState, useMemo, useReducer } from "react";
+import React, { useReducer, useMemo } from 'react';
 
-function numberReducer(state, action) {
+const initialState = {
+  numbers: [5, 3, 8, 1, 9, 2],
+  largestNumber: null,
+};
+
+function reducer(state, action) {
   switch (action.type) {
-    case "ADD_NUMBER":
-      return [...state, action.payload];
-    case "SORT_NUMBERS":
-      return state.sort((a, b) => b - a);
+    case 'FIND_LARGEST_NUMBER':
+      return {
+        ...state,
+        largestNumber: Math.max(...state.numbers),
+      };
     default:
-      throw new Error(`Unsupported action type: ${action.type}`);
+      return state;
   }
 }
 
-function NumberList() {
-  const [number, setNumber] = useState("");
-  const [numberList, dispatch] = useReducer(numberReducer, []);
+function LargestNumber() {
+  const [state, dispatch] = useReducer(reducer, initialState);
 
-  const sortedNumbers = useMemo(() => numberList.sort((a, b) => b - a), [numberList]);
-
-  const handleSubmit = (event) => {
-    event.preventDefault();
-    dispatch({ type: "ADD_NUMBER", payload: Number(number) });
-    setNumber("");
-  };
+  const largestNumber = useMemo(() => {
+    if (!state.largestNumber) {
+      dispatch({ type: 'FIND_LARGEST_NUMBER' });
+    }
+    return state.largestNumber;
+  }, [state]);
 
   return (
     <div>
-      <form onSubmit={handleSubmit}>
-        <label>
-          Number:
-          <input type="number" value={number} onChange={(e) => setNumber(e.target.value)} />
-        </label>
-        <button type="submit">Add Number</button>
-      </form>
-      <h2>Sorted Numbers:</h2>
-      <ul>
-        {sortedNumbers.map((num, index) => (
-          <li key={index}>{num}</li>
-        ))}
-      </ul>
-      <button onClick={() => dispatch({ type: "SORT_NUMBERS" })}>Sort Numbers</button>
+      <p>Numbers: {state.numbers.join(', ')}</p>
+      <p>Largest Number: {largestNumber}</p>
     </div>
   );
 }
 
-export default NumberList;
+export default LargestNumber;
